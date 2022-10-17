@@ -93,6 +93,60 @@ enum class ExternalType : uint8_t {
 #undef UseExternalType
 };
 
+/// WASM GC proposal storage type C++ enumeration class.
+enum class GcStorageType : uint8_t {
+#define UseGcStorageType
+#define Line(NAME, VALUE, STRING) NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcStorageType
+};
+
+/// WASM GC proposal reference type C++ enumeration class.
+enum class GcReferenceType : uint8_t {
+#define UseGcReferenceType
+#define Line(NAME, VALUE, STRING) NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcReferenceType
+};
+
+/// WASM GC proposal builtin heap type C++ enumeration class.
+enum class GcBuiltinHeapType : uint8_t {
+#define UseGcBuiltinHeapType
+#define Line(NAME, VALUE, STRING) NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcBuiltinHeapType
+};
+
+/// WASM GC proposal structure type C++ enumeration class.
+enum class GcStructureType : uint8_t {
+#define UseGcStructureType
+#define Line(NAME, VALUE, STRING) NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcStructureType
+};
+
+/// WASM GC proposal sub type C++ enumeration class.
+enum class GcSubType : uint8_t {
+#define UseGcSubType
+#define Line(NAME, VALUE, STRING) NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcSubType
+};
+
+/// WASM GC proposal defined type C++ enumeration class.
+enum class GcDefinedType : uint8_t {
+#define UseGcDefinedType
+#define Line(NAME, VALUE, STRING) NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcDefinedType
+};
+
 static inline constexpr auto ExternalTypeStr = []() constexpr {
   using namespace std::literals::string_view_literals;
   std::pair<ExternalType, std::string_view> Array[] = {

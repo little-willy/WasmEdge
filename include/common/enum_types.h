@@ -60,4 +60,58 @@ enum WasmEdge_ExternalType {
 #undef UseExternalType
 };
 
+/// WASM GC proposal storage type type C enumeration.
+enum WasmEdge_GcStorageType {
+#define UseGcStorageType
+#define Line(NAME, VALUE, STRING) WasmEdge_GcStorageType_##NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcStorageType
+};
+
+/// WASM GC proposal reference type type C enumeration.
+enum WasmEdge_GcReferenceType {
+#define UseGcReferenceType
+#define Line(NAME, VALUE, STRING) WasmEdge_GcReferenceType_##NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcReferenceType
+};
+
+/// WASM GC proposal builtin heap type type C enumeration.
+enum WasmEdge_GcBuiltinHeapType {
+#define UseGcBuiltinHeapType
+#define Line(NAME, VALUE, STRING) WasmEdge_GcBuiltinHeapType_##NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcBuiltinHeapType
+};
+
+/// WASM GC proposal structure type type C enumeration.
+enum WasmEdge_GcStructureType {
+#define UseGcStructureType
+#define Line(NAME, VALUE, STRING) WasmEdge_GcStructureType_##NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcStructureType
+};
+
+/// WASM GC proposal sub type type C enumeration.
+enum WasmEdge_GcSubType {
+#define UseGcSubType
+#define Line(NAME, VALUE, STRING) WasmEdge_GcSubType_##NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcSubType
+};
+
+/// WASM GC proposal defined type type C enumeration.
+enum WasmEdge_GcDefinedType {
+#define UseGcDefinedType
+#define Line(NAME, VALUE, STRING) WasmEdge_GcDefinedType_##NAME = VALUE,
+#include "enum.inc"
+#undef Line
+#undef UseGcDefinedType
+};
+
 #endif // WASMEDGE_C_API_ENUM_TYPES_H

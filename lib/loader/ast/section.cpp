@@ -55,11 +55,27 @@ Expect<void> Loader::loadSection(AST::CustomSection &Sec) {
 
 // Load vector of type section. See "include/loader/loader.h".
 Expect<void> Loader::loadSection(AST::TypeSection &Sec) {
-  return loadSectionContent(Sec, [this, &Sec]() {
-    return loadSectionContentVec(Sec, [this](AST::FunctionType &FuncType) {
-      return loadType(FuncType);
+  auto Res = loadSectionContent(Sec, [this, &Sec]() {
+    return loadSectionContentVec(Sec, [this](AST::DefinedType &DefinedType) {
+      return loadType(DefinedType);
     });
   });
+  if (!Res) {
+    return Res;
+  }
+  const auto &DefinedTypes = Sec.getContent();
+  auto &FuncTypes = Sec.getFunctionTypes();
+  FuncTypes.resize(DefinedTypes.size());
+  for (uint32_t I = 0; I < DefinedTypes.size(); I++) {
+    const auto &Type = DefinedTypes[I];
+    if (!Type.isSingleFunc()) {
+      return logNeedProposal(ErrCode::Value::MalformedSection, Proposal::GC,
+                             FMgr.getLastOffset(), ASTNodeAttr::Sec_Type);
+    }
+    FuncTypes[I] = Type.asFunctionType();
+  }
+
+  return {};
 }
 
 // Load vector of import section. See "include/loader/loader.h".

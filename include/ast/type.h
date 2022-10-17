@@ -124,6 +124,117 @@ private:
   /// @}
 };
 
+class FieldType {
+public:
+  FieldType() noexcept = default;
+  FieldType(ValMut Mutability, GcStorageType Type) noexcept
+      : Mutability(Mutability), Type(Type) {}
+  ValMut getMutability() const noexcept { return Mutability; }
+
+  GcStorageType getStorageType() const noexcept { return Type; }
+
+private:
+  ValMut Mutability;
+  GcStorageType Type;
+};
+
+class ArrayType {
+public:
+  ArrayType() noexcept = delete;
+  ArrayType(FieldType Type) noexcept : Type(Type) {}
+  FieldType getFieldType() const noexcept { return Type; }
+
+private:
+  FieldType Type;
+};
+
+class StructType {
+public:
+  StructType() noexcept = default;
+  StructType(std::vector<FieldType> &&TypeList) noexcept : Content(TypeList) {}
+
+  Span<const FieldType> getContent() const noexcept { return Content; }
+  std::vector<FieldType> &getContent() noexcept { return Content; }
+
+private:
+  std::vector<FieldType> Content;
+};
+
+class StructureType {
+public:
+  StructureType() noexcept = delete;
+  StructureType(FunctionType &&Type) : VariantType(Type) {}
+  StructureType(StructType &&Type) : VariantType(Type) {}
+  StructureType(ArrayType &&Type) : VariantType(Type) {}
+  template <typename T> const T &asType() const {
+    return std::get<T>(VariantType);
+  }
+  template <typename T> T &asType() { return std::get<T>(VariantType); }
+
+  GcStructureType getTypeCode() const noexcept {
+    switch (VariantType.index()) {
+    case 0:
+      return GcStructureType::Func;
+    case 1:
+      return GcStructureType::Struct;
+    case 2:
+      return GcStructureType::Array;
+    default:
+      assumingUnreachable();
+    }
+  }
+
+private:
+  std::variant<FunctionType, StructType, ArrayType> VariantType;
+};
+
+class SubType {
+public:
+  SubType() noexcept = delete;
+  SubType(StructureType &&Type) noexcept : Type(Type) {}
+  SubType(std::vector<uint32_t> &&ParentTypeIdx, StructureType &&Type) noexcept
+      : ParentTypeIdx(ParentTypeIdx), Type(Type) {}
+
+  const StructureType &getType() const noexcept { return Type; }
+  StructureType &getType() noexcept { return Type; }
+
+private:
+  std::vector<uint32_t> ParentTypeIdx;
+  StructureType Type;
+};
+
+class DefinedType {
+public:
+  DefinedType() noexcept = default;
+  DefinedType(FunctionType &&Type) noexcept {
+    StructureType StructureType(std::move(Type));
+    SubType SubType(std::move(StructureType));
+    SubTypes.push_back(std::move(SubType));
+  }
+  DefinedType(StructType &&Type) noexcept {
+    StructureType StructureType(std::move(Type));
+    SubType SubType(std::move(StructureType));
+    SubTypes.push_back(std::move(SubType));
+  }
+  DefinedType(std::vector<SubType> &&SubTypes) noexcept : SubTypes(SubTypes) {}
+  bool isSingleFunc() const noexcept {
+    if (SubTypes.size() != 1) {
+      return false;
+    }
+    const auto &Type = SubTypes[0].getType();
+    return Type.getTypeCode() == GcStructureType::Func;
+  }
+
+  const FunctionType &asFunctionType() const {
+    assert(isSingleFunc);
+    auto const &Ret = SubTypes[0].getType().asType<FunctionType>();
+    return Ret;
+  }
+
+private:
+  std::vector<SubType> SubTypes;
+};
+
 /// AST MemoryType node.
 class MemoryType {
 public:

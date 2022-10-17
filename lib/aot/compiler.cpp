@@ -5230,7 +5230,7 @@ void Compiler::compile(const AST::TypeSection &TypeSec) {
                               {Context->ExecCtxPtrTy, Context->Int8PtrTy,
                                Context->Int8PtrTy, Context->Int8PtrTy},
                               false);
-  const auto &FuncTypes = TypeSec.getContent();
+  const auto &FuncTypes = TypeSec.getFunctionTypes();
   const auto Size = FuncTypes.size();
   if (Size == 0) {
     return;

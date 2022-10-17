@@ -1208,7 +1208,7 @@ WasmEdge_ImportTypeGetFunctionType(const WasmEdge_ASTModuleContext *ASTCxt,
           WasmEdge::ExternalType::Function) {
     uint32_t Idx = fromImpTypeCxt(Cxt)->getExternalFuncTypeIdx();
     const auto &FuncTypes =
-        fromASTModCxt(ASTCxt)->getTypeSection().getContent();
+        fromASTModCxt(ASTCxt)->getTypeSection().getFunctionTypes();
     if (Idx >= FuncTypes.size()) {
       return nullptr;
     }
@@ -1296,7 +1296,7 @@ WasmEdge_ExportTypeGetFunctionType(const WasmEdge_ASTModuleContext *ASTCxt,
     uint32_t TypeIdx = FuncIdxs[ExtIdx];
     // Get the function type
     const auto &FuncTypes =
-        fromASTModCxt(ASTCxt)->getTypeSection().getContent();
+        fromASTModCxt(ASTCxt)->getTypeSection().getFunctionTypes();
     if (TypeIdx >= FuncTypes.size()) {
       return nullptr;
     }

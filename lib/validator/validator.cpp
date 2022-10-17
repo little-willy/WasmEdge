@@ -21,7 +21,7 @@ Expect<void> Validator::validate(const AST::Module &Mod) {
   Checker.reset(true);
 
   // Register type definitions into FormChecker.
-  for (auto &Type : Mod.getTypeSection().getContent()) {
+  for (auto &Type : Mod.getTypeSection().getFunctionTypes()) {
     Checker.addType(Type);
   }
 

@@ -45,7 +45,7 @@ Executor::instantiate(Runtime::StoreManager &StoreMgr, const AST::Module &Mod,
   }
 
   // Instantiate Function Types in Module Instance. (TypeSec)
-  for (auto &FuncType : Mod.getTypeSection().getContent()) {
+  for (auto &FuncType : Mod.getTypeSection().getFunctionTypes()) {
     // Copy param and return lists to module instance.
     ModInst->addFuncType(FuncType);
   }

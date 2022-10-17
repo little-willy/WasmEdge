@@ -64,20 +64,78 @@ Expect<void> Loader::loadLimit(AST::Limit &Lim) {
   return {};
 }
 
-// Load binary to construct FunctionType node. See "include/loader/loader.h".
-Expect<void> Loader::loadType(AST::FunctionType &FuncType) {
-  uint32_t VecCnt = 0;
+Expect<void> Loader::loadType(AST::DefinedType &DefinedType) {
+  u_int8_t OpCode = 0;
 
   // Read function type (0x60).
   if (auto Res = FMgr.readByte()) {
-    if (*Res != 0x60U) {
-      return logLoadError(ErrCode::Value::IntegerTooLong, FMgr.getLastOffset(),
-                          ASTNodeAttr::Type_Function);
-    }
+    OpCode = *Res;
   } else {
     return logLoadError(Res.error(), FMgr.getLastOffset(),
                         ASTNodeAttr::Type_Function);
   }
+
+  switch (OpCode) {
+  case (uint8_t)GcDefinedType::TypeFunc: {
+    AST::FunctionType FuncType;
+    if (auto Res = loadType(FuncType); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+    DefinedType = AST::DefinedType(std::move(FuncType));
+    break;
+  }
+  case (uint8_t)GcDefinedType::TypeStruct: {
+    AST::StructType StructType;
+    if (auto Res = loadType(StructType); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+
+    DefinedType = AST::DefinedType(std::move(StructType));
+    break;
+  }
+  default: {
+    return logLoadError(ErrCode::Value::IntegerTooLong, FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+  }
+
+  return {};
+}
+
+Expect<void> Loader::loadType(AST::StructType &StructType) {
+  return loadSectionContentVec(StructType, [this](AST::FieldType &FieldType) {
+    return loadType(FieldType);
+  });
+}
+
+Expect<void> Loader::loadType(AST::FieldType &FieldType) {
+  uint8_t Mutability;
+  uint8_t StorageType;
+
+  if (auto Res = FMgr.readByte()) {
+    Mutability = *Res;
+  } else {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+
+  if (auto Res = FMgr.readByte()) {
+    StorageType = *Res;
+  } else {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+
+  FieldType = AST::FieldType(static_cast<ValMut>(Mutability),
+                             static_cast<GcStorageType>(StorageType));
+  return {};
+}
+
+// Load binary to construct FunctionType node. See "include/loader/loader.h".
+Expect<void> Loader::loadType(AST::FunctionType &FuncType) {
+  uint32_t VecCnt = 0;
 
   // Read vector of parameter types.
   if (auto Res = FMgr.readU32()) {

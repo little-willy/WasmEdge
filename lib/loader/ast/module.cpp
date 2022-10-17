@@ -286,7 +286,7 @@ Expect<std::unique_ptr<AST::Module>> Loader::loadModule() {
     auto CodeSymbols = Library->getCodes<void>();
     auto IntrinsicsSymbol =
         Library->getIntrinsics<const AST::Module::IntrinsicsTable *>();
-    auto &FuncTypes = Mod->getTypeSection().getContent();
+    auto &FuncTypes = Mod->getTypeSection().getFunctionTypes();
     auto &CodeSegs = Mod->getCodeSection().getContent();
     if (IsUniversalWASM &&
         unlikely(FuncTypeSymbols.size() != FuncTypes.size())) {
@@ -331,7 +331,7 @@ Expect<std::unique_ptr<AST::Module>> Loader::loadModule() {
 
 // Load compiled function from loadable manager. See "include/loader/loader.h".
 Expect<void> Loader::loadCompiled(AST::Module &Mod) {
-  auto &FuncTypes = Mod.getTypeSection().getContent();
+  auto &FuncTypes = Mod.getTypeSection().getFunctionTypes();
   for (size_t I = 0; I < FuncTypes.size(); ++I) {
     const std::string Name = "t" + std::to_string(I);
     if (auto Symbol =

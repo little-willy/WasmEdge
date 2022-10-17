@@ -42,6 +42,7 @@ A(Seg_Element, "element segment")
 A(Seg_Code, "code segment")
 A(Seg_Data, "data segment")
 A(Type_Function, "function type")
+A(Type_Struct, "struct type")
 A(Type_Limit, "limit")
 A(Type_Memory, "memory type")
 A(Type_Table, "table type")
@@ -632,6 +633,7 @@ P(ExceptionHandling, "Exception handling")
 P(ExtendedConst, "Extended const")
 P(Threads, "Threads")
 P(FunctionReferences, "Typed Function References")
+P(GC, "GC proposal")
 #undef P
 #endif // UseProposal
 
@@ -960,5 +962,99 @@ E(Global, 0x03U, "global")
 
 #undef E
 #endif // UseExternalType
+
+#define NegativeOpCode(NUM) (0x80 + (NUM)) // Only used for gc proposal op code
+
+#ifdef UseGcStorageType
+#define T Line
+// valtype
+// numtype
+T(I32, 0x7F, "i32")
+T(I64, 0x7E, "i64")
+T(F32, 0x7D, "f32")
+T(F64, 0x7C, "f64")
+// vectype
+T(V128, 0x7B, "v128")
+// reftype
+T(FuncRef, 0x70, "funcref")
+T(ExternRef, 0x6F, "externref")
+
+// Gc proposal extended packed type
+T(I8, NegativeOpCode(-0x06), "i8")
+T(I16, NegativeOpCode(-0x07), "i16")
+
+#undef T
+#endif // UseGcStorageType
+
+#ifdef UseGcReferenceType
+#define T Line
+
+T(FuncRef, NegativeOpCode(-0x10), "funcref")
+T(ExternRef, NegativeOpCode(-0x11), "externref")
+T(AnyRef, NegativeOpCode(-0x12), "anyref")
+T(EqRef, NegativeOpCode(-0x13), "eqref")
+T(NullRefHeapType, NegativeOpCode(-0x14), "ref null heap_type")
+T(NonRefHeapType, NegativeOpCode(-0x15), "ref heap_type")
+T(Refi31, NegativeOpCode(-0x16), "i31ref")
+T(NullFuncRef, NegativeOpCode(-0x17), "nullfuncref")
+T(NullExternRef, NegativeOpCode(-0x18), "nullexternref")
+T(StructRef, NegativeOpCode(-0x19), "structref")
+T(ArrayRef, NegativeOpCode(-0x1a), "arrayref")
+T(NullRef, NegativeOpCode(-0x1b), "nullref")
+
+#undef T
+#endif // UseGcReferenceType
+
+#ifdef UseGcBuiltinHeapType
+#define T Line
+
+T(Func, NegativeOpCode(-0x10), "func")
+T(Extern, NegativeOpCode(-0x11), "extern")
+T(Any, NegativeOpCode(-0x12), "any")
+T(Eq, NegativeOpCode(-0x13), "eq")
+T(I31, NegativeOpCode(-0x16), "i31")
+T(NoFunc, NegativeOpCode(-0x17), "nofunc")
+T(NoExtern, NegativeOpCode(-0x18), "noextern")
+T(Struct, NegativeOpCode(-0x19), "struct")
+T(Array, NegativeOpCode(-0x1a), "array")
+T(None, NegativeOpCode(-0x1b), "none")
+
+#undef T
+#endif // UseGcBuiltinHeapType
+
+#ifdef UseGcStructureType
+#define T Line
+
+T(Func, 0x60, "func")
+T(Struct, NegativeOpCode(-0x21), "struct")
+T(Array, NegativeOpCode(-0x22), "array")
+
+#undef T
+#endif // UseGcStructureType
+
+#ifdef UseGcSubType
+#define T Line
+
+T(Func, 0x60, "func")
+T(Struct, NegativeOpCode(-0x21), "struct")
+T(Array, NegativeOpCode(-0x22), "array")
+T(SubType, NegativeOpCode(-0x30), "sub")
+
+#undef T
+#endif // UseGcSubType
+
+#ifdef UseGcDefinedType
+#define T Line
+
+T(TypeFunc, NegativeOpCode(-0x20), "func")
+T(TypeStruct, NegativeOpCode(-0x21), "struct")
+T(TypeArray, NegativeOpCode(-0x22), "array")
+T(TypeSub, NegativeOpCode(-0x30), "sub-type")
+T(TypeRec, NegativeOpCode(-0x31), "rec-type")
+
+#undef T
+#endif // UseGcDefinedType
+
+#undef NegativeOpCode
 
 // vim: ft=cpp

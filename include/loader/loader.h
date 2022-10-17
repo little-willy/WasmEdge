@@ -69,6 +69,9 @@ template <> inline ASTNodeAttr NodeAttrFromAST<AST::CodeSection>() noexcept {
 template <> inline ASTNodeAttr NodeAttrFromAST<AST::DataSection>() noexcept {
   return ASTNodeAttr::Sec_Data;
 }
+template <> inline ASTNodeAttr NodeAttrFromAST<AST::StructType>() noexcept {
+  return ASTNodeAttr::Type_Struct;
+}
 template <>
 inline ASTNodeAttr NodeAttrFromAST<AST::DataCountSection>() noexcept {
   return ASTNodeAttr::Sec_DataCount;
@@ -194,6 +197,9 @@ private:
   Expect<void> loadDesc(AST::ImportDesc &ImpDesc);
   Expect<void> loadDesc(AST::ExportDesc &ExpDesc);
   Expect<void> loadLimit(AST::Limit &Lim);
+  Expect<void> loadType(AST::DefinedType &DefinedType);
+  Expect<void> loadType(AST::StructType &StructType);
+  Expect<void> loadType(AST::FieldType &FieldType);
   Expect<void> loadType(AST::FunctionType &FuncType);
   Expect<void> loadType(AST::MemoryType &MemType);
   Expect<void> loadType(AST::TableType &TabType);

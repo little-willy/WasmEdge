@@ -64,13 +64,17 @@ private:
 class TypeSection : public Section {
 public:
   /// Getter of content vector.
-  Span<const FunctionType> getContent() const noexcept { return Content; }
-  std::vector<FunctionType> &getContent() noexcept { return Content; }
+  Span<const DefinedType> getContent() const noexcept { return Content; }
+  std::vector<DefinedType> &getContent() noexcept { return Content; }
+
+  Span<const FunctionType> getFunctionTypes() const noexcept { return FuncTypes; }
+  std::vector<FunctionType> &getFunctionTypes() noexcept { return FuncTypes; }
 
 private:
   /// \name Data of TypeSection.
   /// @{
-  std::vector<FunctionType> Content;
+  std::vector<DefinedType> Content;
+  std::vector<FunctionType> FuncTypes;
   /// @}
 };
 
