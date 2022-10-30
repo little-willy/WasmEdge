@@ -140,7 +140,7 @@ private:
 
 class ArrayType {
 public:
-  ArrayType() noexcept = delete;
+  ArrayType() noexcept = default;
   ArrayType(FieldType Type) noexcept : Type(Type) {}
   FieldType getFieldType() const noexcept { return Type; }
 
@@ -162,7 +162,7 @@ private:
 
 class StructureType {
 public:
-  StructureType() noexcept = delete;
+  StructureType() noexcept = default;
   StructureType(FunctionType &&Type) : VariantType(Type) {}
   StructureType(StructType &&Type) : VariantType(Type) {}
   StructureType(ArrayType &&Type) : VariantType(Type) {}
@@ -190,7 +190,7 @@ private:
 
 class SubType {
 public:
-  SubType() noexcept = delete;
+  SubType() noexcept = default;
   SubType(StructureType &&Type) noexcept : Type(Type) {}
   SubType(std::vector<uint32_t> &&ParentTypeIdx, StructureType &&Type) noexcept
       : ParentTypeIdx(ParentTypeIdx), Type(Type) {}
@@ -212,6 +212,11 @@ public:
     SubTypes.push_back(std::move(SubType));
   }
   DefinedType(StructType &&Type) noexcept {
+    StructureType StructureType(std::move(Type));
+    SubType SubType(std::move(StructureType));
+    SubTypes.push_back(std::move(SubType));
+  }
+  DefinedType(ArrayType &&Type) noexcept {
     StructureType StructureType(std::move(Type));
     SubType SubType(std::move(StructureType));
     SubTypes.push_back(std::move(SubType));

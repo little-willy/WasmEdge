@@ -154,20 +154,28 @@ private:
   }
   template <typename T, typename L>
   Expect<void> loadSectionContentVec(T &Sec, L &&Func) {
+    if (auto Res = loadVec(Sec.getContent(), std::move(Func)); !Res) {
+      spdlog::error(ErrInfo::InfoAST(NodeAttrFromAST<T>()));
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          NodeAttrFromAST<T>());
+    }
+    return {};
+  }
+
+  template <typename T, typename L>
+  Expect<void> loadVec(std::vector<T> &Vec, L &&Func) {
     uint32_t VecCnt = 0;
     // Read the vector size.
     if (auto Res = FMgr.readU32()) {
       VecCnt = *Res;
-      Sec.getContent().resize(VecCnt);
+      Vec.resize(VecCnt);
     } else {
-      return logLoadError(Res.error(), FMgr.getLastOffset(),
-                          NodeAttrFromAST<T>());
+      return Unexpect(Res);
     }
 
     // Sequently create the AST node T and read data.
     for (uint32_t I = 0; I < VecCnt; ++I) {
-      if (auto Res = Func(Sec.getContent()[I]); !Res) {
-        spdlog::error(ErrInfo::InfoAST(NodeAttrFromAST<T>()));
+      if (auto Res = Func(Vec[I]); !Res) {
         return Unexpect(Res);
       }
     }
@@ -199,6 +207,9 @@ private:
   Expect<void> loadLimit(AST::Limit &Lim);
   Expect<void> loadType(AST::DefinedType &DefinedType);
   Expect<void> loadType(AST::StructType &StructType);
+  Expect<void> loadType(AST::ArrayType &ArrayType);
+  Expect<void> loadType(AST::SubType &SubType);
+  Expect<void> loadType(AST::StructureType &StructureType);
   Expect<void> loadType(AST::FieldType &FieldType);
   Expect<void> loadType(AST::FunctionType &FuncType);
   Expect<void> loadType(AST::MemoryType &MemType);

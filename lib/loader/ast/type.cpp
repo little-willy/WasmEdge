@@ -95,6 +95,42 @@ Expect<void> Loader::loadType(AST::DefinedType &DefinedType) {
     DefinedType = AST::DefinedType(std::move(StructType));
     break;
   }
+  case (uint8_t)GcDefinedType::TypeArray: {
+    AST::ArrayType ArrayType;
+
+    if (auto Res = loadType(ArrayType); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+
+    DefinedType = AST::DefinedType(std::move(ArrayType));
+    break;
+  }
+  case (uint8_t)GcDefinedType::TypeSub: {
+    AST::SubType SubType;
+
+    if (auto Res = loadType(SubType); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+
+    DefinedType = AST::DefinedType(std::vector({SubType}));
+    break;
+  }
+  case (uint8_t)GcDefinedType::TypeRec: {
+    std::vector<AST::SubType> SubTypes;
+
+    if (auto Res = loadVec(
+            SubTypes,
+            [this](AST::SubType &SubType) { return loadType(SubType); });
+        !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+
+    DefinedType = AST::DefinedType(std::move(SubTypes));
+    break;
+  }
   default: {
     return logLoadError(ErrCode::Value::IntegerTooLong, FMgr.getLastOffset(),
                         ASTNodeAttr::Type_Function);
@@ -104,10 +140,106 @@ Expect<void> Loader::loadType(AST::DefinedType &DefinedType) {
   return {};
 }
 
+Expect<void> Loader::loadType(AST::ArrayType &ArrayType) {
+  AST::FieldType FieldType;
+  if (auto Res = loadType(FieldType); !Res) {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+  ArrayType = AST::ArrayType(FieldType);
+  return {};
+}
+
 Expect<void> Loader::loadType(AST::StructType &StructType) {
-  return loadSectionContentVec(StructType, [this](AST::FieldType &FieldType) {
-    return loadType(FieldType);
-  });
+  std::vector<AST::FieldType> FieldTypes;
+
+  if (auto Res = loadVec(
+          FieldTypes,
+          [this](AST::FieldType &FieldType) { return loadType(FieldType); });
+      !Res) {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+
+  StructType = AST::StructType(std::move(FieldTypes));
+  return {};
+}
+
+Expect<void> Loader::loadType(AST::SubType &SubType) {
+  uint32_t VecCnt = 0;
+  std::vector<uint32_t> ParantIdxList;
+
+  // Read vector of parameter types.
+  if (auto Res = FMgr.readU32()) {
+    VecCnt = *Res;
+    ParantIdxList.reserve(VecCnt);
+  } else {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+  for (uint32_t I = 0; I < VecCnt; ++I) {
+    if (auto Res = FMgr.readByte()) {
+      ParantIdxList.push_back(*Res);
+    } else {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+  }
+
+  AST::StructureType StructureType;
+  if (auto Res = loadType(StructureType); !Res) {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+  SubType = AST::SubType(std::move(ParantIdxList), std::move(StructureType));
+  return {};
+}
+
+Expect<void> Loader::loadType(AST::StructureType &StructureType) {
+  u_int8_t OpCode = 0;
+
+  // Read function type (0x60).
+  if (auto Res = FMgr.readByte()) {
+    OpCode = *Res;
+  } else {
+    return logLoadError(Res.error(), FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+
+  switch (OpCode) {
+  case (uint8_t)GcStructureType::Array: {
+    AST::ArrayType Type;
+    if (auto Res = loadType(Type); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+    StructureType = AST::StructureType(std::move(Type));
+    break;
+  }
+  case (uint8_t)GcStructureType::Struct: {
+    AST::StructType Type;
+    if (auto Res = loadType(Type); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+    StructureType = AST::StructureType(std::move(Type));
+    break;
+  }
+  case (uint8_t)GcStructureType::Func: {
+    AST::FunctionType Type;
+    if (auto Res = loadType(Type); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Type_Function);
+    }
+    StructureType = AST::StructureType(std::move(Type));
+    break;
+  }
+  default: {
+    return logLoadError(ErrCode::Value::IntegerTooLong, FMgr.getLastOffset(),
+                        ASTNodeAttr::Type_Function);
+  }
+  }
+  return {};
 }
 
 Expect<void> Loader::loadType(AST::FieldType &FieldType) {
