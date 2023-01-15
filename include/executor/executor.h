@@ -276,6 +276,9 @@ private:
   Expect<void> runBrTableOp(Runtime::StackManager &StackMgr,
                             const AST::Instruction &Instr,
                             AST::InstrView::iterator &PC) noexcept;
+  Expect<void> runBrCastOp(Runtime::StackManager &StackMgr,
+                            const AST::Instruction &Instr,
+                            AST::InstrView::iterator &PC, bool AllowNull, bool IsFailed) noexcept;
   Expect<void> runReturnOp(Runtime::StackManager &StackMgr,
                            AST::InstrView::iterator &PC) noexcept;
   Expect<void> runCallOp(Runtime::StackManager &StackMgr,

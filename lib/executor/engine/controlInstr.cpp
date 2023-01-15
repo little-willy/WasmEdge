@@ -89,6 +89,25 @@ Expect<void> Executor::runBrTableOp(Runtime::StackManager &StackMgr,
                        LabelTable[LabelTableSize].PCOffset, PC);
 }
 
+Expect<void> Executor::runBrCastOp(Runtime::StackManager &StackMgr,
+                                   const AST::Instruction &Instr,
+                                   AST::InstrView::iterator &PC, bool AllowNull,
+                                   bool IsFailed) noexcept {
+  const auto Ref = StackMgr.getTop().get<RefVariant>();
+  bool Failed = false;
+  if (Ref.isNull()) {
+    if (!AllowNull) {
+      Failed = true;
+    }
+  } else {
+    // TODO: check runtime cast
+  }
+  if (Failed == IsFailed) {
+    return runBrOp(StackMgr, Instr, PC);
+  }
+  return {};
+}
+
 Expect<void> Executor::runReturnOp(Runtime::StackManager &StackMgr,
                                    AST::InstrView::iterator &PC) noexcept {
   // Check stop token

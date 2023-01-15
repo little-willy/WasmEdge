@@ -3252,11 +3252,11 @@ WasmEdge_VMGetFunctionListLength(const WasmEdge_VMContext *Cxt);
 /// The returned function names filled into the `Names` array link to the
 /// exported names of functions owned by the vm context, and the caller should
 /// __NOT__ call the `WasmEdge_StringDelete` to destroy them.
-/// The function type contexts filled into the `FuncTypes` array of the
+/// The function type contexts filled into the `Types` array of the
 /// corresponding function names link to the context owned by the VM context.
 /// The caller should __NOT__ call the `WasmEdge_FunctionTypeDelete` to destroy
 /// them.
-/// If the `Names` and `FuncTypes` buffer lengths are smaller than the result of
+/// If the `Names` and `Types` buffer lengths are smaller than the result of
 /// the exported function list size, the overflowed return values will be
 /// discarded.
 ///

@@ -1205,13 +1205,13 @@ The `VM` context supplies the APIs to retrieve the instances.
       /* Create the name buffers and the function type buffers. */
       const uint32_t BUF_LEN = 256;
       WasmEdge_String FuncNames[BUF_LEN];
-      WasmEdge_FunctionTypeContext *FuncTypes[BUF_LEN];
+      WasmEdge_FunctionTypeContext *Types[BUF_LEN];
       /* 
        * Get the export function list.
        * If the function list length is larger than the buffer length, the overflowed data will be discarded.
-       * The `FuncNames` and `FuncTypes` can be NULL if developers don't need them.
+       * The `FuncNames` and `Types` can be NULL if developers don't need them.
        */
-      uint32_t RealFuncNum = WasmEdge_VMGetFunctionList(VMCxt, FuncNames, FuncTypes, BUF_LEN);
+      uint32_t RealFuncNum = WasmEdge_VMGetFunctionList(VMCxt, FuncNames, Types, BUF_LEN);
 
       for (uint32_t I = 0; I < RealFuncNum && I < BUF_LEN; I++) {
         char Buf[BUF_LEN];
