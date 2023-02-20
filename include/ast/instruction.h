@@ -31,6 +31,7 @@ public:
     uint32_t StackEraseBegin;
     uint32_t StackEraseEnd;
     int32_t PCOffset;
+    HeapType HType;
   };
 
 public:
@@ -107,6 +108,9 @@ public:
   /// Getter and setter of reference type.
   HeapType getHeapType() const noexcept { return Data.HType; }
   void setHeapType(HeapType HType) noexcept { Data.HType = HType; }
+
+  HeapType getJumpHeapType() const noexcept { return Data.Jump.HType; }
+  void setJumpHeapType(HeapType HType) noexcept { Data.Jump.HType = HType; }
 
   /// Getter and setter of label list.
   void setLabelListSize(uint32_t Size) {
