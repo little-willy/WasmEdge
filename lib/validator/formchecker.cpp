@@ -966,6 +966,15 @@ Expect<void> FormChecker::checkInstr(const AST::Instruction &Instr) {
                        FullValType(FullRefType(HeapTypeCode::Eq))},
                       {FullValType(ValType::I32)});
   }
+  case OpCode::Array__copy: {
+    return StackTrans(
+        {FullValType(FullRefType(RefTypeCode::RefNull, Instr.getSourceIndex())),
+         FullValType(ValType::I32),
+         FullValType(FullRefType(RefTypeCode::RefNull, Instr.getTargetIndex())),
+         FullValType(ValType::I32), FullValType(ValType::I32)},
+        {});
+  }
+  case OpCode::Ref__test_deprecated:
   case OpCode::Ref__test_null:
   case OpCode::Ref__test: {
     FullRefType RType;
@@ -990,6 +999,7 @@ Expect<void> FormChecker::checkInstr(const AST::Instruction &Instr) {
     return {};
   }
   case OpCode::Ref__cast_null:
+  case OpCode::Ref__cast_deprecated:
   case OpCode::Ref__cast: {
     FullRefType RType;
     if (auto Res = popType()) {
@@ -1085,6 +1095,10 @@ Expect<void> FormChecker::checkInstr(const AST::Instruction &Instr) {
     }
   }
   case OpCode::Br_on_cast_fail:
+  case OpCode::Br_on_cast_fail_deprecated:
+  case OpCode::Br_on_non_data:
+  case OpCode::Br_on_non_array:
+  case OpCode::Br_on_non_i31:
   case OpCode::Br_on_cast_fail_null: {
     if (auto D = checkCtrlStackDepth(Instr.getTargetIndex()); !D) {
       return Unexpect(D);

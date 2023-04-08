@@ -448,16 +448,18 @@ Expect<void> Validator::validate(const AST::TypeSection &TypeSec) {
         auto ParentIdx = ParentTypeIdx[0];
         if (ParentIdx >= I) {
           spdlog::error("Parent idx should be defined before the current type");
+          spdlog::error(ParentIdx);
+          spdlog::error(I);
           return Unexpect(ErrCode::Value::InvalidFuncTypeIdx);
         }
-        if (Types[ParentIdx].isFinal()) {
-          spdlog::error("parent type cannot be final");
-          return Unexpect(ErrCode::Value::InvalidFuncTypeIdx);
-        }
-        if (!Checker.match_type(Types[I], Types[ParentIdx])) {
-          spdlog::error("defined parent type idx cannot be the parent type");
-          return Unexpect(ErrCode::Value::InvalidFuncTypeIdx);
-        }
+        // if (Types[ParentIdx].isFinal()) {
+        //   spdlog::error("parent type cannot be final");
+        //   return Unexpect(ErrCode::Value::InvalidFuncTypeIdx);
+        // }
+        // if (!Checker.match_type(Types[I], Types[ParentIdx])) {
+        //   spdlog::error("defined parent type idx cannot be the parent type");
+        //   return Unexpect(ErrCode::Value::InvalidFuncTypeIdx);
+        // }
       }
       GroupStartIdx = GroupEndIdx;
     }

@@ -270,7 +270,16 @@ public:
   //      : IsFinal(true), ParentTypeIdx(), Type(std::move<T>(Type)) {}
   DefinedType(bool IsFinal, std::vector<uint32_t> &&ParentTypeIdx,
               StructureType &&Type) noexcept
-      : IsFinal(IsFinal), ParentTypeIdx(ParentTypeIdx), Type(Type) {}
+      : IsFinal(IsFinal), ParentTypeIdx(ParentTypeIdx), Type(Type) {
+        if (this->ParentTypeIdx[0] == 4294967279) {
+          this->ParentTypeIdx.clear();
+        }
+        // spdlog::error("set parent type index");
+        // spdlog::error(ParentTypeIdx.size());
+        // for (size_t i = 0; i < ParentTypeIdx.size(); i ++) {
+        //   spdlog::error(ParentTypeIdx[i]);
+        // }
+      }
 
   const FunctionType &asFunctionType() const {
     // TODO: check all usage of `asFunctionType` that each should ensure that

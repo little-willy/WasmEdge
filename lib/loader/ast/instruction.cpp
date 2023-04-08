@@ -355,6 +355,30 @@ Expect<void> Loader::loadInstruction(AST::Instruction &Instr) {
     }
     return {};
 
+  case OpCode::Ref__test_deprecated:
+  case OpCode::Ref__cast_deprecated: {
+    uint32_t TypeIdx;
+    if (auto Res = readU32(TypeIdx)) {
+        Instr.setHeapType(TypeIdx);
+    } else {
+return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    return {};
+  }
+
+  case OpCode::Array__copy: {
+    if (auto Res = readU32(Instr.getSourceIndex()); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    if (auto Res = readU32(Instr.getTargetIndex()); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    return {};
+  }
+
   case OpCode::Br_on_cast:
   case OpCode::Br_on_cast_fail:
   case OpCode::Br_on_cast_null:
@@ -370,6 +394,45 @@ Expect<void> Loader::loadInstruction(AST::Instruction &Instr) {
       return logLoadError(Res.error(), FMgr.getLastOffset(),
                           ASTNodeAttr::Instruction);
     }
+    return {};
+  case OpCode::Br_on_cast_fail_deprecated: {
+    // read label index
+    if (auto Res = readU32(Instr.getTargetIndex()); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    uint32_t TypeIdx;
+    if (auto Res = readU32(TypeIdx)) {
+      Instr.setJumpHeapType(TypeIdx);
+    } else {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    return {};
+  }
+  case OpCode::Br_on_non_data:
+    // read label index
+    if (auto Res = readU32(Instr.getTargetIndex()); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    Instr.setJumpHeapType(HeapTypeCode::Struct);
+    return {};
+  case OpCode::Br_on_non_i31:
+    // read label index
+    if (auto Res = readU32(Instr.getTargetIndex()); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    Instr.setJumpHeapType(HeapTypeCode::I31);
+    return {};
+  case OpCode::Br_on_non_array:
+    // read label index
+    if (auto Res = readU32(Instr.getTargetIndex()); !Res) {
+      return logLoadError(Res.error(), FMgr.getLastOffset(),
+                          ASTNodeAttr::Instruction);
+    }
+    Instr.setJumpHeapType(HeapTypeCode::Array);
     return {};
 
   case OpCode::Ref__eq:
@@ -1100,8 +1163,8 @@ Expect<void> Loader::checkInstrProposals(OpCode Code,
                              ASTNodeAttr::Instruction);
     }
   } else if (Code == OpCode::Ref__eq ||
-             (OpCode::Struct__new_canon <= Code &&
-              Code <= OpCode::Struct__set) ||
+             (OpCode::Struct__get <= Code &&
+              Code <= OpCode::Struct__new_canon_default) ||
              (OpCode::Array__new_canon <= Code &&
               Code <= OpCode::Array__new_canon_elem) ||
              (OpCode::I31__new <= Code && Code <= OpCode::I31__get_u) ||
