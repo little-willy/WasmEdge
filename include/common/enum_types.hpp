@@ -141,6 +141,14 @@ public:
     switch (HType.HeapTypeCode) {
     case (uint8_t)HeapTypeCode::Func:
     case (uint8_t)HeapTypeCode::Extern:
+    case (uint8_t)HeapTypeCode::Any:
+    case (uint8_t)HeapTypeCode::Array:
+    case (uint8_t)HeapTypeCode::Struct:
+    case (uint8_t)HeapTypeCode::I31:
+    case (uint8_t)HeapTypeCode::Eq:
+    case (uint8_t)HeapTypeCode::NoFunc:
+    case (uint8_t)HeapTypeCode::NoExtern:
+    case (uint8_t)HeapTypeCode::None:
     case (uint8_t)HeapTypeCode::Defined:
       break;
     default:
