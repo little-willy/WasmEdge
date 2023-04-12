@@ -1010,6 +1010,12 @@ WasmEdge_FunctionTypeCreate(const enum WasmEdge_ValType *ParamList,
                             const enum WasmEdge_ValType *ReturnList,
                             const uint32_t ReturnLen);
 
+WASMEDGE_CAPI_EXPORT extern WasmEdge_FunctionTypeContext *
+WasmEdge_FunctionTypeCreateV2(const struct WasmEdge_FullValType *ParamList,
+                            const uint32_t ParamLen,
+                            const struct WasmEdge_FullValType *ReturnList,
+                            const uint32_t ReturnLen);
+
 /// Get the parameter types list length from the WasmEdge_FunctionTypeContext.
 ///
 /// \param Cxt the WasmEdge_FunctionTypeContext.

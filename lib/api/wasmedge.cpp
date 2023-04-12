@@ -1025,6 +1025,27 @@ WASMEDGE_CAPI_EXPORT WasmEdge_FunctionTypeContext *WasmEdge_FunctionTypeCreate(
   return toFuncTypeCxt(Cxt);
 }
 
+WASMEDGE_CAPI_EXPORT extern WasmEdge_FunctionTypeContext *
+WasmEdge_FunctionTypeCreateV2(const struct WasmEdge_FullValType *ParamList,
+                              const uint32_t ParamLen,
+                              const struct WasmEdge_FullValType *ReturnList,
+                              const uint32_t ReturnLen) {
+  auto *Cxt = new WasmEdge::AST::FunctionType;
+  if (ParamLen > 0) {
+    Cxt->getParamTypes().resize(ParamLen);
+  }
+  for (uint32_t I = 0; I < ParamLen; I++) {
+    Cxt->getParamTypes()[I] = ParamList[I];
+  }
+  if (ReturnLen > 0) {
+    Cxt->getReturnTypes().resize(ReturnLen);
+  }
+  for (uint32_t I = 0; I < ReturnLen; I++) {
+    Cxt->getReturnTypes()[I] = ReturnList[I];
+  }
+  return toFuncTypeCxt(Cxt);
+}
+
 WASMEDGE_CAPI_EXPORT uint32_t WasmEdge_FunctionTypeGetParametersLength(
     const WasmEdge_FunctionTypeContext *Cxt) {
   if (Cxt) {
