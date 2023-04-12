@@ -134,6 +134,7 @@ Expect<void> Executor::execute(Runtime::StackManager &StackMgr,
     case OpCode::Br_on_cast_null:
       return runBrCastOp(StackMgr, Instr, PC, true, false);
     case OpCode::Br_on_cast_fail:
+    case OpCode::Br_on_cast_fail_deprecated:
       return runBrCastOp(StackMgr, Instr, PC, false, true);
     case OpCode::Br_on_cast_fail_null:
       return runBrCastOp(StackMgr, Instr, PC, true, true);
@@ -394,7 +395,8 @@ Expect<void> Executor::execute(Runtime::StackManager &StackMgr,
       StackMgr.push(Result);
       return {};
     }
-    case OpCode::Ref__cast: {
+    case OpCode::Ref__cast:
+    case OpCode::Ref__cast_deprecated:{
       if (!canCast(StackMgr, Instr.getHeapType(), false)) {
         spdlog::error("get null pointer at ref.cast");
         return Unexpect(ErrCode::Value::CastNullptrToNonNull);
@@ -405,6 +407,17 @@ Expect<void> Executor::execute(Runtime::StackManager &StackMgr,
       if (!canCast(StackMgr, Instr.getHeapType(), true)) {
         spdlog::error("get null pointer at ref.cast");
         return Unexpect(ErrCode::Value::CastNullptrToNonNull);
+      }
+      return {};
+    }
+    case OpCode::Array__copy: {
+      auto Len = StackMgr.pop().get<uint32_t>();
+      auto SourceIdx = StackMgr.pop().get<uint32_t>();
+      auto * SourceArray = StackMgr.pop().get<RefVariant>().asPtr<Runtime::Instance::HeapInstance>();
+      auto DestIdx = StackMgr.pop().get<uint32_t>();
+      auto * DestArray = StackMgr.pop().get<RefVariant>().asPtr<Runtime::Instance::HeapInstance>();
+      for (uint32_t I = 0; I < Len; I ++) {
+        DestArray->setArrayValue(SourceArray->getArrayValue(SourceIdx + I, true), DestIdx + I);
       }
       return {};
     }

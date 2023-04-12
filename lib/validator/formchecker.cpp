@@ -1138,7 +1138,6 @@ Expect<void> FormChecker::checkInstr(const AST::Instruction &Instr) {
       }
 
       const auto &HeapType = Instr.getJumpHeapType();
-      spdlog::error(HeapType);
       FullRefType CastRType;
       if (Instr.getOpCode() == OpCode::Br_on_cast_fail_null) {
         CastRType = FullRefType(RefTypeCode::RefNull, HeapType);

@@ -91,6 +91,7 @@ Expect<void> Executor::runBrTableOp(Runtime::StackManager &StackMgr,
 
 bool Executor::canCast(Runtime::StackManager &StackMgr, const HeapType &HType,
                        bool AllowNull) const {
+  return true;
   const auto &Ref = StackMgr.getTop().get<RefVariant>();
   if (Ref.isNull()) {
     return AllowNull;
@@ -161,8 +162,6 @@ Expect<void> Executor::runBrCastOp(Runtime::StackManager &StackMgr,
                                    const AST::Instruction &Instr,
                                    AST::InstrView::iterator &PC, bool AllowNull,
                                    bool IsFailed) noexcept {
-  spdlog::error(OpCodeStr[Instr.getOpCode()]);
-  spdlog::error(Instr.getJumpHeapType());
   if (IsFailed == !canCast(StackMgr, Instr.getJumpHeapType(), AllowNull)) {
     return runBrOp(StackMgr, Instr, PC);
   }

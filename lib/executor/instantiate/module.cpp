@@ -76,17 +76,18 @@ Executor::instantiate(Runtime::StoreManager &StoreMgr, const AST::Module &Mod,
   instantiate(*ModInst, MemSec);
 
   // Add a temp module to Store with only imported globals for initialization.
-  std::unique_ptr<Runtime::Instance::ModuleInstance> TmpModInst =
-      std::make_unique<Runtime::Instance::ModuleInstance>("");
-  for (uint32_t I = 0; I < ModInst->getGlobalImportNum(); ++I) {
-    TmpModInst->importGlobal(*(ModInst->getGlobal(I)));
-  }
-  for (uint32_t I = 0; I < ModInst->getFuncNum(); ++I) {
-    TmpModInst->importFunction(*(ModInst->getFunc(I)));
-  }
+//  std::unique_ptr<Runtime::Instance::ModuleInstance> TmpModInst =
+//      std::make_unique<Runtime::Instance::ModuleInstance>("");
+//  for (uint32_t I = 0; I < ModInst->getGlobalImportNum(); ++I) {
+//    TmpModInst->importGlobal(*(ModInst->getGlobal(I)));
+//  }
+//  for (uint32_t I = 0; I < ModInst->getFuncNum(); ++I) {
+//    TmpModInst->importFunction(*(ModInst->getFunc(I)));
+//  }
+//  TmpModInst->importType
 
   // Push a new frame {TmpModInst:{globaddrs}, locals:none}
-  StackMgr.pushFrame(TmpModInst.get(), AST::InstrView::iterator(), 0, 0);
+  StackMgr.pushFrame(ModInst.get(), AST::InstrView::iterator(), 0, 0);
 
   // Instantiate GlobalSection (GlobalSec)
   const AST::GlobalSection &GlobSec = Mod.getGlobalSection();
